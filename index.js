@@ -1,20 +1,22 @@
 var progress;
 var inSuccessView;
 var inFailView;
-var time;
 var input;
 var correctAnswer;
+var hour;
+var minute;
 
 $(document).ready(function () {
   progress = 0;
   inFailView = false;
   inSuccessView = false;
-  time = randomTimeString();
-  correctAnswer = correctAnswerFrom(time);
+  hour = randomNumberBetween(0, 23);
+  minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
+  correctAnswer = correctAnswerFrom(hour, minute);
 
   $('#check').click(checkAnswer);
   $('#input').on('keyup', function (e) {
-    if (e.key === 'Enter' || e.keyCode === 13) {
+    if (($('#input').val() !== '' || (inFailView || inSuccessView)) && (e.key === 'Enter' || e.keyCode === 13)) {
       checkAnswer();
     }
   });
@@ -25,11 +27,10 @@ $(document).ready(function () {
 });
 
 function updateScreen() {
-  $('#time').text(time);
+  $('#time').text(timeString(hour, minute));
   $('#progress').prop('aria-valuenow', progress).prop('style', 'width: ' + progress + '%');
-
   $('#input').val(input);
- 
+
   if (inSuccessView) {
     $('#check').removeClass('btn-info').addClass('btn-success').text('Nächste');
   } else if (inFailView) {
@@ -44,15 +45,14 @@ function updateScreen() {
 
 
 function checkAnswer() {
-
   if (inSuccessView || inFailView) {
-    // move onto next question
-    time = randomTimeString();
+    hour = randomNumberBetween(0, 23);
+    minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
+    correctAnswer = correctAnswerFrom(hour, minute);
     inSuccessView = false;
     inFailView = false;
     input = '';
   } else {
-    // check answer
     input = $('#input').val().trim();
     if (correctAnswer === input) {
       inSuccessView = true;
@@ -65,18 +65,12 @@ function checkAnswer() {
   updateScreen();
 }
 
-function correctAnswerFrom(time) {
+function correctAnswerFrom(h, m) {
   return "test";
 }
 
 function randomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-function randomTimeString() {
-  var hour = randomNumberBetween(0, 23);
-  var minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
-  return timeString(hour, minute);
 }
 
 function timeString(hour, minute) {
