@@ -1,33 +1,77 @@
 var progress;
+var inSuccessView;
+var inFailView;
+var time;
+var input;
+var correctAnswer;
 
 $(document).ready(function () {
   progress = 0;
+  inFailView = false;
+  inSuccessView = false;
+  time = randomTimeString();
+  correctAnswer = correctAnswerFrom(time);
+
   $('#check').click(checkAnswer);
+  $('#input').on('keyup', function (e) {
+    if (e.key === 'Enter' || e.keyCode === 13) {
+      checkAnswer();
+    }
+  });
+
+  $('#input').focus();
+
+  updateScreen();
 });
+
+function updateScreen() {
+  $('#time').text(time);
+  $('#progress').prop('aria-valuenow', progress).prop('style', 'width: ' + progress + '%');
+
+  $('#input').val(input);
+ 
+  if (inSuccessView) {
+    $('#check').removeClass('btn-info').addClass('btn-success').text('Nächste');
+  } else if (inFailView) {
+    $('#failMessage').removeClass('d-none');
+    $('#check').removeClass('btn-info').addClass('btn-danger').text('Nächste');
+  } else {
+    $('#failMessage').addClass('d-none');
+    $('#input').focus();
+    $('#check').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info').text('Prüfen');
+  }
+}
 
 
 function checkAnswer() {
-  
-  var answer = $('#answer').val().trim();
-  $('#answer').val('');
 
-  
-  // TODO what happens when get to 100
-  progress = progress + 10;
-  setProgressBarTo(progress);
+  if (inSuccessView || inFailView) {
+    // move onto next question
+    time = randomTimeString();
+    inSuccessView = false;
+    inFailView = false;
+    input = '';
+  } else {
+    // check answer
+    input = $('#input').val().trim();
+    if (correctAnswer === input) {
+      inSuccessView = true;
+      progress = progress + 10;
+    } else {
+      inFailView = true;
+    }
+  }
 
-  var newQuestion = randomTimeString();
-  $('#time').text(newQuestion);
+  updateScreen();
 }
 
-function setProgressBarTo(percentage) {
-  $('#progress').attr('aria-valuenow', percentage).attr('style', 'width: ' + percentage + '%')
+function correctAnswerFrom(time) {
+  return "test";
 }
 
 function randomNumberBetween(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
-
 
 function randomTimeString() {
   var hour = randomNumberBetween(0, 23);
