@@ -5,14 +5,35 @@ var input;
 var correctAnswers;
 var hour;
 var minute;
+var noOfCorrect;
+var state;
+var previousMistakes;
+var totalQuestions;
+var noOfQuestionsLeftToGenerate;
 
 $(document).ready(function () {
-  progress = 0;
-  inFailView = false;
-  inSuccessView = false;
-  hour = randomNumberBetween(0, 23);
-  minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
-  correctAnswers = correctAnswersFrom(hour, minute);
+  $('#again').click(function() {
+    startNewGame();
+    updateScreen();
+  });
+
+  $('#umlautA').click(function () {
+    input = $('#input').val() + 'ä';
+    $('#input').val(input);
+    $('#input').focus();
+  });
+
+  $('#umlautO').click(function () {
+    input = $('#input').val() + 'ö';
+    $('#input').val(input);
+    $('#input').focus();
+  });
+
+  $('#umlautU').click(function () {
+    input = $('#input').val() + 'ü';
+    $('#input').val(input);
+    $('#input').focus();
+  });
 
   $('#check').click(checkAnswer);
   $('#input').on('keyup', function (e) {
@@ -21,43 +42,82 @@ $(document).ready(function () {
     }
   });
 
-  $('#input').focus();
-
+  startNewGame();
   updateScreen();
 });
 
-function updateScreen() {
-  $('#time').text(timeString(hour, minute));
-  $('#progress').prop('aria-valuenow', progress).prop('style', 'width: ' + progress + '%');
-  $('#input').val(input);
+function startNewGame() {
+  progress = 0;
+  inFailView = false;
+  inSuccessView = false;
+  input = '';
+  hour = randomNumberBetween(0, 23);
+  minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
+  correctAnswers = correctAnswersFrom(hour, minute);
+  noOfCorrect = 0;
+  state = 'GAME';
+  totalQuestions = 10;
+  noOfQuestionsLeftToGenerate = 10;
+  previousMistakes = [];
+}
 
-  if (inSuccessView) {
-    $('#check').removeClass('btn-info').addClass('btn-success').text('Nächste');
-    $('#successMessage').removeClass('d-none');
-    $('#successMessageText').text('„' + correctAnswers.join('“ oder „') + '“');
-  } else if (inFailView) {
-    $('#failMessage').removeClass('d-none');
-    $('#failMessageText').text('„' + correctAnswers.join('“ oder „') + '“');
-    $('#check').removeClass('btn-info').addClass('btn-danger').text('Nächste');
-  } else {
-    $('#failMessage').addClass('d-none');
-    $('#failMessageText').text('');
-    $('#successMessage').addClass('d-none');
-    $('#successMessageText').text('');
-    $('#input').focus();
-    $('#check').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info').text('Prüfen');
+function updateScreen() {
+  if (state === 'END') {
+    $('#end').removeClass('d-none');
+    $('#game').addClass('d-none');
+    $('#again').focus();
+  } else if (state === 'GAME') {
+    $('#game').removeClass('d-none');
+    $('#end').addClass('d-none');
+    $('#time').text(timeString(hour, minute));
+    $('#progress').prop('aria-valuenow', progress).prop('style', 'width: ' + progress + '%');
+    $('#input').val(input);
+
+    if (inSuccessView) {
+      $('#check').removeClass('btn-info').addClass('btn-success').text('Nächste');
+      $('#check').focus();
+      $('#successMessage').removeClass('d-none');
+      $('#successMessageText').text('„' + correctAnswers.join('“ oder „') + '“');
+    } else if (inFailView) {
+      $('#check').removeClass('btn-info').addClass('btn-danger').text('Nächste');
+      $('#check').focus();
+      $('#failMessage').removeClass('d-none');
+      $('#failMessageText').text('„' + correctAnswers.join('“ oder „') + '“');
+    } else {
+      $('#failMessage').addClass('d-none');
+      $('#failMessageText').text('');
+      $('#successMessage').addClass('d-none');
+      $('#successMessageText').text('');
+      $('#input').focus();
+      $('#check').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info').text('Prüfen');
+    }
   }
 }
 
 function checkAnswer() {
   if ($('#input').val() !== '' || (inFailView || inSuccessView)) {
     if (inSuccessView || inFailView) {
-      hour = randomNumberBetween(0, 23);
-      minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
-      correctAnswers = correctAnswersFrom(hour, minute);
-      inSuccessView = false;
-      inFailView = false;
-      input = '';
+      if (noOfCorrect === totalQuestions) {
+        state = 'END';
+      } else {
+        if (noOfQuestionsLeftToGenerate > 0) {
+          hour = randomNumberBetween(0, 23);
+          minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
+          correctAnswers = correctAnswersFrom(hour, minute);
+          inSuccessView = false;
+          inFailView = false;
+          input = '';
+          noOfQuestionsLeftToGenerate = noOfQuestionsLeftToGenerate - 1;
+        } else {
+          previousMistake = previousMistakes.pop();
+          hour = previousMistake.h;
+          minute = previousMistake.m;
+          correctAnswers = correctAnswersFrom(hour, minute);
+          inSuccessView = false;
+          inFailView = false;
+          input = '';
+        }
+      }
     } else {
       input = $('#input').val().trim();
       var correctAnswerFound = false;
@@ -70,7 +130,9 @@ function checkAnswer() {
       if (correctAnswerFound) {
         inSuccessView = true;
         progress = progress + 10;
+        noOfCorrect = noOfCorrect + 1;
       } else {
+        previousMistakes.push({h: hour, m: minute});
         inFailView = true;
       }
     }
@@ -209,7 +271,7 @@ function correctAnswersFrom(h, m) {
     var hourAsText = hourAsTexts(h + 1);
     for (var i = 0; i < hourAsText.length; i++) {
       answers.push('Kurz vor ' + hourAsText[i]);
-      answers.push('Gleich vor ' + hourAsText[i]);
+      answers.push('Gleich ' + hourAsText[i]);
     }
     return answers;
   }
@@ -235,7 +297,7 @@ function hourAsTexts(h) {
     case 13: return ['eins', 'dreizehn'];
     case 14: return ['zwei', 'vierzehn'];
     case 15: return ['drei', 'fünfzehn'];
-    case 16: return ['vier', 'sechszehn'];
+    case 16: return ['vier', 'sechzehn'];
     case 17: return ['fünf', 'siebzehn'];
     case 18: return ['sechs', 'achtzehn'];
     case 19: return ['sieben', 'neunzehn'];

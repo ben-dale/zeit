@@ -24,6 +24,25 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div id="end" class="container">
+        <div class="row mt-5">
+            <div class="col-md-4 offset-md-4">
+                <div class="card border-success">
+                    <div class="card-body text-center">
+                        <h5 class="card-text font-weight-bold">Gut gemacht!</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-4 offset-md-4">
+                <button id="again" class="btn btn-info btn-block">Nochmal?</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game" class="container d-none">
         <div class="row mt-5">
             <div class="col-sm-12 col-md-8 offset-md-2">
                 <div class="card">
@@ -36,10 +55,23 @@
 
         <div class="row mt-4">
             <div class="offset-md-2 col-md-6">
-                <input id="input" type="text" class="form-control bg-light" placeholder="Antwort" aria-label="Antwort">
+                <div class="row">
+                    <div class="col-md-12">
+                        <input id="input" type="text" class="form-control bg-light" placeholder="Antwort"
+                            aria-label="Antwort" tabindex="1">
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <button id="umlautA" class="btn btn-sm btn-light border border-dark" tabindex="3">ä</button>
+                        <button id="umlautO" class="btn btn-sm btn-light border border-dark" tabindex="4">ö</button>
+                        <button id="umlautU" class="btn btn-sm btn-light border border-dark" tabindex="5">ü</button>
+                    </div>
+                </div>
+
             </div>
             <div class="col-md-2">
-                <button id="check" class="btn btn-info btn-block">Prüfen</button>
+                <button id="check" class="btn btn-info btn-block" tabindex="2">Prüfen</button>
             </div>
         </div>
 
