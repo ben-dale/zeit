@@ -57,7 +57,7 @@ function startNewGame() {
   noOfCorrect = 0;
   state = 'GAME';
   totalQuestions = 10;
-  noOfQuestionsLeftToGenerate = 10;
+  noOfQuestionsLeftToGenerate = 9; // exluding first question
   previousMistakes = [];
 }
 
@@ -109,7 +109,7 @@ function checkAnswer() {
           input = '';
           noOfQuestionsLeftToGenerate = noOfQuestionsLeftToGenerate - 1;
         } else {
-          previousMistake = previousMistakes.pop();
+          previousMistake = previousMistakes.shift();
           hour = previousMistake.h;
           minute = previousMistake.m;
           correctAnswers = correctAnswersFrom(hour, minute);
@@ -144,7 +144,9 @@ function checkAnswer() {
 function correctAnswersFrom(h, m) {
   if (m === 0) {
     var answers = [];
-    if (h === 1) {
+    if (h === 0) {
+      answers.push('Mitternacht')
+    } else if (h === 1) {
       answers.push('ein Uhr');
     } else if (h === 13) {
       answers.push('ein Uhr');
@@ -281,7 +283,7 @@ function correctAnswersFrom(h, m) {
 
 function hourAsTexts(h) {
   switch (h) {
-    case 0: return ['mitternacht'];
+    case 0: return ['zwölf', 'mitternacht'];
     case 1: return ['eins'];
     case 2: return ['zwei'];
     case 3: return ['drei'];
@@ -305,8 +307,7 @@ function hourAsTexts(h) {
     case 21: return ['neun', 'einundzwanzig'];
     case 22: return ['zehn', 'zweiundzwanzig'];
     case 23: return ['elf', 'dreiundzwanzig'];
-    case 24: return ['zwölf', 'mitternacht'];
-    case 25: return ['eins'];
+    case 24: return ['eins'];
   }
 }
 
