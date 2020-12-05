@@ -11,7 +11,7 @@ $(document).ready(function () {
   inFailView = false;
   inSuccessView = false;
   hour = randomNumberBetween(0, 23);
-  minute = oneOf([5]);
+  minute = oneOf([0, 2, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 58]);
   correctAnswers = correctAnswersFrom(hour, minute);
 
   $('#check').click(checkAnswer);
@@ -33,12 +33,17 @@ function updateScreen() {
 
   if (inSuccessView) {
     $('#check').removeClass('btn-info').addClass('btn-success').text('Nächste');
+    $('#successMessage').removeClass('d-none');
+    $('#successMessageText').text('„' + correctAnswers.join('“ oder „') + '“');
   } else if (inFailView) {
     $('#failMessage').removeClass('d-none');
+    $('#failMessageText').text('„' + correctAnswers.join('“ oder „') + '“');
     $('#check').removeClass('btn-info').addClass('btn-danger').text('Nächste');
   } else {
     $('#failMessage').addClass('d-none');
-    $('#failMessageText').text(correctAnswers.join(' / '));
+    $('#failMessageText').text('');
+    $('#successMessage').addClass('d-none');
+    $('#successMessageText').text('');
     $('#input').focus();
     $('#check').removeClass('btn-success').removeClass('btn-danger').addClass('btn-info').text('Prüfen');
   }
@@ -55,7 +60,14 @@ function checkAnswer() {
       input = '';
     } else {
       input = $('#input').val().trim();
-      if (correctAnswers.includes(input)) {
+      var correctAnswerFound = false;
+      for (var i = 0; i < correctAnswers.length; i++) {
+        if (input.toLowerCase() === correctAnswers[i].toLowerCase()) {
+          correctAnswerFound = true;
+          break;
+        }
+      }
+      if (correctAnswerFound) {
         inSuccessView = true;
         progress = progress + 10;
       } else {
@@ -68,6 +80,31 @@ function checkAnswer() {
 }
 
 function correctAnswersFrom(h, m) {
+  if (m === 0) {
+    var answers = [];
+    if (h === 1) {
+      answers.push('ein Uhr');
+    } else if (h === 13) {
+      answers.push('ein Uhr');
+      answers.push('dreizehn Uhr');
+    } else {
+      var hourAsText = hourAsTexts(h, m);
+      for (var i = 0; i < hourAsText.length; i++) {
+        answers.push(hourAsText[i] + ' Uhr');
+      }
+    }
+    return answers;
+  }
+
+  if (m === 2) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('Kurz nach ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
   if (m === 5) {
     var answers = [];
     var hourAsText = hourAsTexts(h);
@@ -76,6 +113,108 @@ function correctAnswersFrom(h, m) {
     }
     return answers;
   }
+
+  if (m === 10) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('zehn nach ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 15) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('Viertel nach ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 20) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('zwanzig nach ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 25) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('fünf vor halb ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 30) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('halb ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 35) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('fünf nach halb ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 40) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('zwanzig vor ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 45) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('Viertel vor ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 50) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('zehn vor ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 55) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('fünf vor ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  if (m === 58) {
+    var answers = [];
+    var hourAsText = hourAsTexts(h + 1);
+    for (var i = 0; i < hourAsText.length; i++) {
+      answers.push('Kurz vor ' + hourAsText[i]);
+      answers.push('Gleich vor ' + hourAsText[i]);
+    }
+    return answers;
+  }
+
+  return [];
 }
 
 function hourAsTexts(h) {
@@ -105,6 +244,7 @@ function hourAsTexts(h) {
     case 22: return ['zehn', 'zweiundzwanzig'];
     case 23: return ['elf', 'dreiundzwanzig'];
     case 24: return ['zwölf', 'mitternacht'];
+    case 25: return ['eins'];
   }
 }
 
